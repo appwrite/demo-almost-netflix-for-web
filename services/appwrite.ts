@@ -63,7 +63,7 @@ export type AppwriteCategory = {
 
 export const AppwriteMovieCategories: AppwriteCategory[] = [
   {
-    title: "Popular on Netflix",
+    title: "Popular on Almost Netflix",
     queries: [],
     orderAttributes: ["releaseYear"],
     orderTypes: ["ASC"]

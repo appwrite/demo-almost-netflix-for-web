@@ -15,7 +15,7 @@
     <div class="w-[calc(100%-20px)] lg:w-[calc(100%-100px)] mx-auto mt-6">
       <header class="relative flex items-center justify-between w-full">
         <section class="flex items-center justify-end space-x-10">
-          <img src="/logo.svg" class="h-8" alt="Netflix Logo" />
+          <img src="/logo.png" class="h-8" alt="Almost Netflix Logo" />
 
           <div class="flex space-x-6 text-zinc-200">
             <nuxt-link to="/app/movies">Movies</nuxt-link>

@@ -5,7 +5,7 @@ export default {
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    title: 'Netflix Clone',
+    title: 'Almost Netflix',
     htmlAttrs: {
       lang: 'en',
     },

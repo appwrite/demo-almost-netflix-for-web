@@ -1,17 +1,17 @@
 <template>
   <div class="w-screen h-screen bg-black bg-center bg-cover bg-image">
     <div class="w-screen h-screen bg-black/50">
-      <div class="w-[calc(100%-20px)] lg:w-[calc(100%-200px)] mx-auto">
+      <div class="w-[calc(100%-20px)] lg:w-[calc(100%-100px)] mx-auto">
         <div class="flex justify-center lg:justify-start">
-          <img src="/logo.svg" class="w-40 pt-6" alt="Netflix Logo" />
+          <img src="/logo.png" class="w-40 pt-6" alt="Almost Netflix Logo" />
         </div>
 
         <div class="container mx-auto">
           <div
             class="flex flex-col items-center justify-center mt-12 space-y-4"
           >
-            <h1 class="text-[100px] font-bold text-white">Netflix!</h1>
-            <p class="text-4xl text-zinc-100">but like... fake...</p>
+            <h1 class="text-[100px] font-bold text-white">Almost Netflix</h1>
+            <p class="text-4xl text-zinc-100">Almost as good as original.</p>
           </div>
 
           <div class="flex w-full max-w-md mx-auto mt-10 space-x-3">

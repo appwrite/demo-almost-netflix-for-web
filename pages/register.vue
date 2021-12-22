@@ -3,7 +3,7 @@
     <div class="w-screen h-screen bg-black/50">
       <div class="w-[calc(100%-20px)] lg:w-[calc(100%-100px)] mx-auto">
         <div class="flex justify-center lg:justify-start">
-          <img src="/logo.svg" class="w-40 pt-6" alt="Netflix Logo" />
+          <img src="/logo.png" class="w-40 pt-6" alt="Almost Netflix Logo" />
         </div>
 
         <div class="flex items-start justify-center mt-12">
@@ -181,7 +181,7 @@
 
             <div class="mt-12">
               <p class="text-zinc-500">
-                New to Netflix?
+                Already member of Almost Netflix?
                 <nuxt-link to="/login" class="text-white hover:underline"
                   >Sign in now</nuxt-link
                 >.
