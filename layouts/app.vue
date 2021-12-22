@@ -66,7 +66,7 @@ export default Vue.extend({
     const bodyElement = document.querySelector('body')
     bodyElement?.classList.add('bg-[#141414]')
 
-    this.profilePhoto = AppwriteService.getProfilePhoto()
+    this.profilePhoto = await AppwriteService.getProfilePhoto()
   },
   methods: {
     async onLogout() {

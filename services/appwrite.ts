@@ -175,12 +175,27 @@ export const AppwriteService = {
     return response.documents;
   },
 
-  getProfilePhoto(): URL {
-    return sdk.avatars.getInitials(undefined, 50, 50);
+  async getProfilePhoto(): Promise<URL> {
+    let name = undefined;
+
+    try {
+      const account = await sdk.account.get();
+
+      if (account.name) {
+        name = account.name
+      } else {
+        name = account.email;
+      }
+    } catch (err) {
+      // All good
+    }
+
+    return sdk.avatars.getInitials(name, 50, 50);
   },
 
   getThumbnail(imageId: string): URL {
     return sdk.storage.getFilePreview(imageId, 500, undefined, "center", undefined, undefined, undefined, undefined, undefined, undefined, undefined, "webp");
+
   }
 };
 
