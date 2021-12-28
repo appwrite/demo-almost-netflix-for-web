@@ -9,7 +9,15 @@
         <div class="flex items-start justify-center mt-12">
           <form
             @submit.prevent="onRegister()"
-            class="w-full max-w-md p-16 bg-black rounded-md bg-opacity-80"
+            class="
+              w-full
+              max-w-md
+              p-8
+              bg-black
+              rounded-md
+              sm:p-16
+              bg-opacity-80
+            "
           >
             <h1 class="text-3xl font-bold text-white">Sign Up</h1>
 
@@ -181,7 +189,7 @@
 
             <div class="mt-12">
               <p class="text-zinc-500">
-                Already member of Almost Netflix?
+                Already using Almost Netflix?
                 <nuxt-link to="/login" class="text-white hover:underline"
                   >Sign in now</nuxt-link
                 >.

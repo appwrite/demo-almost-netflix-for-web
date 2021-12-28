@@ -9,7 +9,7 @@
         <div class="flex items-start justify-center mt-12">
           <form
             @submit.prevent="onLogin()"
-            class="w-full max-w-md p-16 bg-black rounded-md bg-opacity-80"
+            class="w-full max-w-md p-8 bg-black rounded-md  sm:p-16 bg-opacity-80"
           >
             <h1 class="text-3xl font-bold text-white">Sign In</h1>
 

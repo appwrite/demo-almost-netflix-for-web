@@ -20,7 +20,7 @@ export default {
 
   env: {
     appwriteEndpoint:
-      process.env.APPWRITE_ENDPOINT || 'https://dbqa.appwrite.org/v1',
+      process.env.APPWRITE_ENDPOINT || 'https://dbqa2.appwrite.org/v1',
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css

@@ -13,7 +13,9 @@
       "
     ></div>
     <div class="w-[calc(100%-20px)] lg:w-[calc(100%-100px)] mx-auto mt-6">
-      <header class="relative flex items-center justify-between w-full">
+      <header
+        class="relative flex flex-col items-center justify-between w-full space-y-6  md:space-y-0 md:flex-row"
+      >
         <section class="flex items-center justify-end space-x-10">
           <img src="/logo.png" class="h-8" alt="Almost Netflix Logo" />
 
@@ -49,6 +51,34 @@
 
       <Nuxt />
     </div>
+
+    <footer class="py-12 text-white bg-black">
+      <div
+        class="
+          flex flex-col
+          md:flex-row
+          space-y-6
+          md:space-y-0
+          items-center
+          justify-between
+          text-lg text-gray-500
+          w-[calc(100%-20px)]
+          lg:w-[calc(100%-100px)]
+          mx-auto
+          mt-6
+        "
+      >
+        <p class="text-center md:text-left">
+          Almost netflix - Netflix Clone for education purposes
+        </p>
+        <p class="text-center md:text-right">
+          Check out original
+          <a class="text-white hover:underline" href="https://www.netflix.com/"
+            >Netflix.com</a
+          >
+        </p>
+      </div>
+    </footer>
   </div>
 </template>
 

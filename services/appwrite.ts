@@ -46,12 +46,15 @@ export type AppwriteMovie = {
   name: string,
   description: string,
   durationMinutes: number,
-  tags: string[],
-  cast: string[],
   thumbnailImageId: string,
-  releaseYear: number,
-  genres: string[],
+  releaseDate: number,
   ageRestriction: string
+} & Models.Document;
+
+export type AppwriteMovieMetadata = {
+  movieId: string,
+  value: string,
+  type: string
 } & Models.Document;
 
 export type AppwriteCategory = {
@@ -63,20 +66,32 @@ export type AppwriteCategory = {
 
 export const AppwriteMovieCategories: AppwriteCategory[] = [
   {
-    title: "Popular on Almost Netflix",
+
+    title: "Popular this week",
     queries: [],
-    orderAttributes: ["releaseYear"],
-    orderTypes: ["ASC"]
+    orderAttributes: ["trendingIndex"],
+    orderTypes: ["DESC"]
   },
   {
-    title: "Released last 3 year",
+
+    title: "Only on Almost Netflix",
     queries: [
-      Query.greaterEqual('releaseYear', 2018),
+      Query.equal("isOriginal", true)
     ],
-    orderAttributes: ["releaseYear"],
-    orderTypes: ["ASC"]
+    orderAttributes: ["trendingIndex"],
+    orderTypes: ["DESC"]
   },
   {
+
+    title: "New releases",
+    queries: [
+      Query.greaterEqual('releaseDate', 2018),
+    ],
+    orderAttributes: ["releaseDate"],
+    orderTypes: ["DESC"]
+  },
+  {
+
     title: "Movies longer than 2 hours",
     queries: [
       Query.greaterEqual('durationMinutes', 120)
@@ -85,51 +100,56 @@ export const AppwriteMovieCategories: AppwriteCategory[] = [
     orderTypes: ["DESC"]
   },
   {
-    title: "Family meeting!",
-    queries: [
-      // Query.contains('genres', ["Family"])
-    ],
-    orderAttributes: ["releaseYear"],
-    orderTypes: ["DESC"]
-  },
-  {
-    title: "Let's have fun",
-    queries: [
-      // Query.contains('genres', ["Comedy"])
-    ],
-    orderAttributes: ["releaseYear"],
-    orderTypes: ["DESC"]
-  },
-  {
+
     title: "Love is in the air",
     queries: [
-      // Query.contains('genres', ["Romance"])
+      Query.search('genres', "Romance")
     ],
-    orderAttributes: ["releaseYear"],
+    orderAttributes: ["trendingIndex"],
     orderTypes: ["DESC"]
   },
   {
+
+    title: "Animated worlds",
+    queries: [
+      Query.search('genres', "Animation")
+    ],
+    orderAttributes: ["trendingIndex"],
+    orderTypes: ["DESC"]
+  },
+  {
+
     title: "It's getting scarry",
     queries: [
-      // Query.contains('genres', ["Horror"])
+      Query.search('genres', "Horror")
     ],
-    orderAttributes: ["releaseYear"],
+    orderAttributes: ["trendingIndex"],
     orderTypes: ["DESC"]
   },
   {
-    title: "Sci-Fi",
+
+    title: "Sci-Fi awaits...",
     queries: [
-      // Query.contains('genres', ["Science Fiction"])
+      Query.search('genres', "Science Fiction")
     ],
-    orderAttributes: ["releaseYear"],
+    orderAttributes: ["trendingIndex"],
     orderTypes: ["DESC"]
   },
   {
-    title: "Thriller",
+
+    title: "Anime?",
     queries: [
-      // Query.contains('genres', ["Thriller"])
+      Query.search('tags', "anime")
     ],
-    orderAttributes: ["releaseYear"],
+    orderAttributes: ["trendingIndex"],
+    orderTypes: ["DESC"]
+  },
+  {
+    title: "Thriller!",
+    queries: [
+      Query.search('genres', "Thriller")
+    ],
+    orderAttributes: ["trendingIndex"],
     orderTypes: ["DESC"]
   },
 ];
@@ -141,7 +161,7 @@ if (!process.env.appwriteEndpoint) {
 const sdk = new Appwrite();
 sdk
   .setEndpoint(process.env.appwriteEndpoint)
-  .setProject("netflix");
+  .setProject("almostNetflix");
 
 export const AppwriteService = {
   async logout(): Promise<boolean> {
@@ -170,9 +190,15 @@ export const AppwriteService = {
     }
   },
 
-  async getMovies(category: AppwriteCategory, cursorDirection: 'before' | 'after' = 'after', cursor: string | undefined = undefined): Promise<AppwriteMovie[]> {
-    const response = await sdk.database.listDocuments<AppwriteMovie>("movies", category.queries, 7, undefined, cursor, cursorDirection, category.orderAttributes, category.orderTypes);
-    return response.documents;
+  async getMovies(perPage: number, category: AppwriteCategory, cursorDirection: 'before' | 'after' = 'after', cursor: string | undefined = undefined): Promise<AppwriteMovie[]> {
+    const queries = category.queries;
+    const collectionName = "movies";
+
+    const documents = [];
+    const response = await sdk.database.listDocuments<AppwriteMovie>(collectionName, queries, perPage, undefined, cursor, cursorDirection, category.orderAttributes, category.orderTypes);
+    documents.push(...response.documents);
+
+    return documents;
   },
 
   async getProfilePhoto(): Promise<URL> {
