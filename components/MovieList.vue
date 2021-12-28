@@ -8,6 +8,7 @@
       <button
         v-for="(movie, index) in movies"
         :key="movie.$id"
+        :appwrite-id="movie.$id"
         class="
           z-[3]
           hover:z-[4]
@@ -99,22 +100,61 @@
               </div>
             </div>
 
-            <img
-              :src="getSrc(movie.thumbnailImageId)"
-              class="
-                object-cover object-top
-                w-full
-                aspect-[1.78/1]
-                hover:aspect-[500/800]
-                transition-all
-                duration-500
-                rounded-none
-                hover:rounded-lg
-                shadow-none
-                hover:shadow-lg
-              "
-              alt="Cover"
-            />
+            <div class="relative group">
+              <img
+                :src="getSrc(movie.thumbnailImageId)"
+                class="
+                  object-cover object-top
+                  w-full
+                  aspect-[1.78/1]
+                  group-hover:aspect-[500/800]
+                  transition-all
+                  duration-500
+                  rounded-none
+                  group-hover:rounded-lg
+                  shadow-none
+                  group-hover:shadow-lg
+                "
+                alt="Cover"
+              />
+
+              <div class="absolute bottom-4 left-4 right-4">
+                <button
+                  class="
+                    px-2
+                    py-2
+                    font-bold
+                    text-[#141414]
+                    flex
+                    items-center
+                    justify-center
+                    space-x-2
+                    bg-[rgba(255,255,255,0.5)]
+                    group-hover:bg-white
+                    hover:!bg-[rgba(255,255,255,0.8)]
+                    transition-all
+                    duration-300
+                    rounded-md
+                    text-sm
+                  "
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="w-4 h-4"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                      clip-rule="evenodd"
+                    />
+                  </svg>
+
+                  <span class="hidden group-hover:block">Add to My List</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </button>
@@ -156,6 +196,8 @@ export default Vue.extend({
 
   methods: {
     isCursorAllowed(index: number) {
+      // Simply use variables we fill duging fetching data from API
+      // Depending on index (direction) we want to return different variables
       if (index === 0) {
         return this.isBeforeAllowed
       }
@@ -165,15 +207,20 @@ export default Vue.extend({
       }
     },
     getSrc(imageId: string) {
+      // Just a middleware since we cant directly talk to service from HTML
       return AppwriteService.getThumbnail(imageId)
     },
     async onPageChange(direction: 'before' | 'after') {
+      // Show spinners instead of arrows
       this.isLoading = true
+
+      // Depending on direction, get ID of last document we have
       const lastId =
         direction === 'before'
           ? this.movies[0].$id
           : this.movies[this.movies.length - 1].$id
 
+      // Fetch new list of movies using direction and last document ID
       const newMovies = await AppwriteService.getMovies(
         this.perPage,
         this.$props.category,
@@ -181,29 +228,56 @@ export default Vue.extend({
         lastId
       )
 
+      // Now lets figure out if we have previous and next page...
+      // Let's start with saying we have them both, then we will set it to false if we are sure there isnt any
+      // By setting default to true, we never hide it when we shouldnt.. Worst case scenario, we show it when we shoulding, resulsing in you seing the arrow, but taking no effect and then dissapearing
       this.isBeforeAllowed = true
       this.isAfterAllowed = true
 
-      if (newMovies.length === 0) {
+      // If we dont get any documents, it means we got to edge-case when we thought there is next/previous page, but there isnt
+      if (newMovies.documents.length === 0) {
+        // Depending on direction, set that arrow to disabled
         if (direction === 'before') {
           this.isBeforeAllowed = false
         } else {
           this.isAfterAllowed = false
         }
       } else {
-        this.movies = newMovies
+        // If we got some documents, store them to component variable and keep both arrows enabled
+        this.movies = newMovies.documents
       }
 
+      // If our Appwrite service says there isn' next page, then...
+      if (!newMovies.hasNext) {
+        // Depnding on direction, set that specific direction to disabled
+        if (direction === 'before') {
+          this.isBeforeAllowed = false
+        } else {
+          this.isAfterAllowed = false
+        }
+      }
+
+      // This system is not fully perfect, because if dataset changes while we are watching specific page, we have arrow even tho there isnt next page. Thats why we have edge-case check earlier
+
+      // This solution also fails if document with ID we use as cursor is removed.
+      // TODO: Implement fallback to next document ID in list, if first one fails. If all fails, WHAT THE HELL.
+
+      // Hide spinners, show arrows again
       this.isLoading = false
     },
   },
 
   async created() {
-    this.movies = await AppwriteService.getMovies(
+    // When component loads, fetch movie list with defaults for pagination (no cursor)
+    const data = await AppwriteService.getMovies(
       this.perPage,
       this.$props.category
     )
+
+    // Store fetched data into component variables
+    this.movies = data.documents
     this.isLoading = false
+    this.isAfterAllowed = data.hasNext
   },
 })
 </script>

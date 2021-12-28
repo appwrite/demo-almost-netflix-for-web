@@ -2,26 +2,36 @@
   <div>
     <div
       class="
+        z-[2]
         absolute
         top-0
         left-0
         right-0
         bg-gradient-to-b
         from-black
-        h-10
+        h-24
         to-[rgba(0,0,0,0)]
       "
     ></div>
-    <div class="w-[calc(100%-20px)] lg:w-[calc(100%-100px)] mx-auto mt-6">
+    <div class="w-[calc(100%-20px)] lg:w-[calc(100%-100px)] mx-auto h-10 mt-6">
       <header
-        class="relative flex flex-col items-center justify-between w-full space-y-6  md:space-y-0 md:flex-row"
+        class="
+          z-[3]
+          relative
+          flex flex-col
+          items-center
+          justify-between
+          w-full
+          space-y-6
+          md:space-y-0 md:flex-row
+        "
       >
         <section class="flex items-center justify-end space-x-10">
           <img src="/logo.png" class="h-8" alt="Almost Netflix Logo" />
 
           <div class="flex space-x-6 text-zinc-200">
             <nuxt-link to="/app/movies">Movies</nuxt-link>
-            <nuxt-link to="/app/tv-shows">TV Shows</nuxt-link>
+            <nuxt-link to="/app/my-list">My List</nuxt-link>
           </div>
         </section>
 
@@ -48,8 +58,123 @@
           </button>
         </section>
       </header>
+    </div>
 
-      <Nuxt />
+    <div
+      class="
+        relative
+        z-[1]
+        w-full
+        h-screen
+        flex
+        items-center
+        -mt-16
+        bg-gradient-to-b
+        from-black
+        to-[#141414]
+        bg-top bg-cover
+      "
+      v-bind:style="{
+        backgroundImage: mainMovie
+          ? 'url(\'' + getSrc(mainMovie.thumbnailImageId) + '\')'
+          : undefined,
+      }"
+    >
+      <div
+        v-if="mainMovie"
+        class="
+          relative
+          z-[3]
+          w-[calc(100%-20px)]
+          lg:w-[calc(100%-100px)]
+          mx-auto
+        "
+      >
+        <div>
+          <h1 class="max-w-3xl pb-6 text-5xl font-semibold text-white">
+            {{ mainMovie.name }}
+          </h1>
+          <p class="max-w-3xl pb-6 text-3xl font-light text-white">
+            {{ mainMovie.description }}
+          </p>
+
+          <div class="flex items-center space-x-3">
+            <button
+              class="
+                px-4
+                py-4
+                font-bold
+                text-[#141414]
+                flex
+                items-center
+                justify-center
+                space-x-3
+                bg-white
+                rounded-md
+                text-xl
+              "
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-6 h-6"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+
+              <span>More info</span>
+            </button>
+
+            <button
+              class="flex items-center justify-center px-4 py-4 space-x-3 text-xl font-bold text-white transition duration-300 bg-opacity-75 rounded-md  bg-zinc-700 hover:bg-opacity-50"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="w-6 h-6"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+
+              <span>Add to My List</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="z-[1] absolute inset-0 bg-black opacity-[60%]"></div>
+
+      <div
+        class="
+          z-[2]
+          absolute
+          left-0
+          bottom-0
+          w-full
+          h-20
+          bg-gradient-to-b
+          from-transparent
+          to-[#141414]
+        "
+      ></div>
+    </div>
+
+    <div class="-mt-[250px] relative z-[3]">
+      <div class="py-12">
+        <div class="w-[calc(100%-20px)] lg:w-[calc(100%-100px)] mx-auto mt-6">
+          <Nuxt />
+        </div>
+      </div>
     </div>
 
     <footer class="py-12 text-white bg-black">
@@ -69,7 +194,13 @@
         "
       >
         <p class="text-center md:text-left">
-          Almost netflix - Netflix Clone for education purposes
+          Almost netflix - Netflix Clone for education purposes using
+          <a
+            class="text-white hover:underline"
+            href="https://www.themoviedb.org/"
+            >TMDB</a
+          >
+          data
         </p>
         <p class="text-center md:text-right">
           Check out original
@@ -84,12 +215,13 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import { AppwriteService } from '~/services/appwrite'
+import { AppwriteMovie, AppwriteService } from '~/services/appwrite'
 
 export default Vue.extend({
   data: () => {
     return {
       profilePhoto: null as URL | null,
+      mainMovie: null as null | AppwriteMovie,
     }
   },
   async mounted() {
@@ -97,8 +229,12 @@ export default Vue.extend({
     bodyElement?.classList.add('bg-[#141414]')
 
     this.profilePhoto = await AppwriteService.getProfilePhoto()
+    this.mainMovie = await AppwriteService.getMainMovie()
   },
   methods: {
+    getSrc(imageId: string) {
+      return AppwriteService.getMainThumbnail(imageId)
+    },
     async onLogout() {
       const didLogout = await AppwriteService.logout()
       if (didLogout) {

@@ -51,12 +51,6 @@ export type AppwriteMovie = {
   ageRestriction: string
 } & Models.Document;
 
-export type AppwriteMovieMetadata = {
-  movieId: string,
-  value: string,
-  type: string
-} & Models.Document;
-
 export type AppwriteCategory = {
   title: string;
   queries: string[];
@@ -164,64 +158,105 @@ sdk
   .setProject("almostNetflix");
 
 export const AppwriteService = {
+  // Logout from server removing the session on backend
   async logout(): Promise<boolean> {
     try {
       await sdk.account.deleteSession("current");
       return true;
     } catch (err) {
+      // If error occured, we should not redirect to login page
       return false;
     }
   },
 
+  // Login existing user into his account
   async login(email: string, password: string): Promise<void> {
     await sdk.account.createSession(email, password);
   },
 
+  // Register new user into Appwrite
   async register(name: string, email: string, password: string): Promise<void> {
     await sdk.account.create("unique()", email, password, name);
   },
 
+  // Figure out if user is logged in or not
   async getAuthStatus(): Promise<boolean> {
     try {
       await sdk.account.get();
       return true;
     } catch (err) {
+      // If there is error, I believe it's 4XX error and it means user is not logged
+      // TODO: I should expect 5XX errors here better
       return false;
     }
   },
 
-  async getMovies(perPage: number, category: AppwriteCategory, cursorDirection: 'before' | 'after' = 'after', cursor: string | undefined = undefined): Promise<AppwriteMovie[]> {
-    const queries = category.queries;
-    const collectionName = "movies";
-
-    const documents = [];
-    const response = await sdk.database.listDocuments<AppwriteMovie>(collectionName, queries, perPage, undefined, cursor, cursorDirection, category.orderAttributes, category.orderTypes);
-    documents.push(...response.documents);
-
-    return documents;
+  // Simple query to get the most trading movie
+  async getMainMovie(): Promise<AppwriteMovie> {
+    const response = await sdk.database.listDocuments<AppwriteMovie>("movies", [], 1, undefined, undefined, undefined, ["trendingIndex"], ["DESC"]);
+    return response.documents[0];
   },
 
+  // List movies. Most important function
+  async getMovies(perPage: number, category: AppwriteCategory, cursorDirection: 'before' | 'after' = 'after', cursor: string | undefined = undefined): Promise<{
+    documents: AppwriteMovie[],
+    hasNext: boolean;
+  }> {
+    // Get queries from category configuration. Used so this function is generic and can be easily re-used
+    const queries = category.queries;
+
+    const collectionName = "movies";
+    const documents = [];
+
+    // Fetch data with configuration from category
+    // Limit increased +1 on purpose so we know if there is next page
+    const response = await sdk.database.listDocuments<AppwriteMovie>(collectionName, queries, perPage + 1, undefined, cursor, cursorDirection, category.orderAttributes, category.orderTypes);
+
+    // Create clone of documents we got, but depeding on cursor direction, remove additional document we fetched by setting limit to +1
+    if (cursorDirection === "after") {
+      documents.push(...response.documents.filter((_d, dIndex) => dIndex < perPage));
+    } else {
+      documents.push(...response.documents.filter((_d, dIndex) => dIndex > 0 || response.documents.length === perPage));
+    }
+
+    // Return documents, but also figure out if there was this +1 document we requested. If yes, there is next page. If not, there is not
+    return {
+      documents,
+      hasNext: response.documents.length === perPage + 1
+    };
+  },
+
+  // Generate profile photo from initials
   async getProfilePhoto(): Promise<URL> {
-    let name = undefined;
+    let name = "Anonymous";
 
     try {
       const account = await sdk.account.get();
 
       if (account.name) {
-        name = account.name
+        // If we have name, use that for initials
+        name = account.name;
       } else {
+        // If not, use email. That is 100% available always
         name = account.email;
       }
     } catch (err) {
-      // All good
+      // Means we dont have account, fallbacking to anonymous image
     }
 
+    // Generate URL from previously picked keyword (name)
     return sdk.avatars.getInitials(name, 50, 50);
   },
 
+  // Generate URL that will resize image to 500px from original potemtially 4k image
+  // Also, use webp format for better performance
   getThumbnail(imageId: string): URL {
-    return sdk.storage.getFilePreview(imageId, 500, undefined, "center", undefined, undefined, undefined, undefined, undefined, undefined, undefined, "webp");
+    return sdk.storage.getFilePreview(imageId, 500, undefined, "top", undefined, undefined, undefined, undefined, undefined, undefined, undefined, "webp");
+  },
 
+  // Same as above. Generates URL, setting some limits on size and format
+  getMainThumbnail(imageId: string): URL {
+    return sdk.storage.getFilePreview(imageId, 2000, undefined, "top", undefined, undefined, undefined, undefined, undefined, undefined, undefined, "webp");
   }
 };
 

@@ -1,10 +1,12 @@
 <template>
-  <div class="flex flex-col my-20 space-y-20">
-    <movie-list
-      v-for="category in categories"
-      :key="category.title"
-      :category="category"
-    />
+  <div>
+    <div class="flex flex-col space-y-20">
+      <movie-list
+        v-for="category in categories"
+        :key="category.title"
+        :category="category"
+      />
+    </div>
   </div>
 </template>
 
