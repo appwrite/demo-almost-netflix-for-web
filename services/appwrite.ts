@@ -155,7 +155,15 @@ if (!process.env.appwriteEndpoint) {
 const sdk = new Appwrite();
 sdk
   .setEndpoint(process.env.appwriteEndpoint)
-  .setProject("almostNetflix");
+  .setProject("almostNetflix"); // almostNetflix
+
+// TODO: Delete me once tested and fixed. DOnt forget to implement my list
+// (async () => {
+//   // const docs = await sdk.database.listDocuments("movies", [
+//   //   Query.equal("$id", ["61cc1867921b87e8caf0", "61cc18680185a0a0f161"])
+//   // ]);
+//   // console.log(docs);
+// })().catch((err) => console.error);
 
 export const AppwriteService = {
   // Logout from server removing the session on backend

@@ -6,6 +6,8 @@
       class="relative grid grid-cols-2 gap-4 mt-6  sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7"
     >
       <button
+        type="button"
+        @click="OPEN_MODAL(movie)"
         v-for="(movie, index) in movies"
         :key="movie.$id"
         :appwrite-id="movie.$id"
@@ -119,7 +121,9 @@
               />
 
               <div class="absolute bottom-4 left-4 right-4">
+                <!-- TODO: stop propagation! -->
                 <button
+                  type="button"
                   class="
                     px-2
                     py-2
@@ -164,6 +168,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import { mapMutations } from 'vuex'
 import { AppwriteMovie, AppwriteService } from '~/services/appwrite'
 
 export default Vue.extend({
@@ -195,6 +200,7 @@ export default Vue.extend({
   },
 
   methods: {
+    ...mapMutations('modal', ['OPEN_MODAL']),
     isCursorAllowed(index: number) {
       // Simply use variables we fill duging fetching data from API
       // Depending on index (direction) we want to return different variables
