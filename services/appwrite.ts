@@ -1,10 +1,10 @@
-import { Appwrite, Models } from "appwrite";
+import { Appwrite, Models } from "meldiron-appwrite";
 
 type QueryTypesSingle = string | number | boolean;
 type QueryTypesList = string[] | number[] | boolean[];
 type QueryTypes = QueryTypesSingle | QueryTypesList;
 
-class Query {
+export class Query {
   static equal = (attribute: string, value: QueryTypes): string =>
     Query.addQuery(attribute, "equal", value);
 
@@ -49,6 +49,11 @@ export type AppwriteMovie = {
   thumbnailImageId: string,
   releaseDate: number,
   ageRestriction: string
+} & Models.Document;
+
+export type AppwriteWatchlist = {
+  movieId: string,
+  userId: string
 } & Models.Document;
 
 export type AppwriteCategory = {
@@ -157,14 +162,6 @@ sdk
   .setEndpoint(process.env.appwriteEndpoint)
   .setProject("almostNetflix"); // almostNetflix
 
-// TODO: Delete me once tested and fixed. DOnt forget to implement my list
-// (async () => {
-//   // const docs = await sdk.database.listDocuments("movies", [
-//   //   Query.equal("$id", ["61cc1867921b87e8caf0", "61cc18680185a0a0f161"])
-//   // ]);
-//   // console.log(docs);
-// })().catch((err) => console.error);
-
 export const AppwriteService = {
   // Logout from server removing the session on backend
   async logout(): Promise<boolean> {
@@ -265,6 +262,52 @@ export const AppwriteService = {
   // Same as above. Generates URL, setting some limits on size and format
   getMainThumbnail(imageId: string): URL {
     return sdk.storage.getFilePreview(imageId, 2000, undefined, "top", undefined, undefined, undefined, undefined, undefined, undefined, undefined, "webp");
+  },
+
+  async addToMyList(movieId: string): Promise<boolean> {
+    try {
+      const { $id: userId } = await sdk.account.get();
+
+      await sdk.database.createDocument("watchlists", "unique()", {
+        userId,
+        movieId,
+        createdAt: Math.round(Date.now() / 1000)
+      });
+      return true;
+    } catch (err: any) {
+      alert(err.message);
+      return false;
+    }
+  },
+
+  async deleteFromMyList(movieId: string): Promise<boolean> {
+    try {
+      const { $id: userId } = await sdk.account.get();
+
+      const watchlistResponse = await sdk.database.listDocuments<AppwriteWatchlist>("watchlists", [
+        Query.equal("userId", userId),
+        Query.equal("movieId", movieId)
+      ], 1);
+
+      const watchlistId = watchlistResponse.documents[0].$id;
+
+      await sdk.database.deleteDocument("watchlists", watchlistId);
+      return true;
+    } catch (err: any) {
+      alert(err.message);
+      return false;
+    }
+  },
+
+  async getOnlyMyList(movieIds: string[]): Promise<string[]> {
+    const { $id: userId } = await sdk.account.get();
+
+    const watchlistResponse = await sdk.database.listDocuments<AppwriteWatchlist>("watchlists", [
+      Query.equal("userId", userId),
+      Query.equal("movieId", movieIds)
+    ], movieIds.length);
+
+    return watchlistResponse.documents.map((d) => d.movieId);
   }
 };
 

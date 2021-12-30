@@ -92,18 +92,37 @@
       >
         <div>
           <h1
-            class="max-w-3xl pb-6 text-5xl font-semibold text-center text-white  sm:text-left"
+            class="
+              max-w-3xl
+              pb-6
+              text-5xl
+              font-semibold
+              text-center text-white
+              sm:text-left
+            "
           >
             {{ mainMovie.name }}
           </h1>
           <p
-            class="max-w-3xl pb-6 text-3xl font-light text-center text-white  sm:text-left"
+            class="
+              max-w-3xl
+              pb-6
+              text-3xl
+              font-light
+              text-center text-white
+              sm:text-left
+            "
           >
             {{ mainMovie.description }}
           </p>
 
           <div
-            class="flex flex-col items-center space-y-3  sm:space-y-0 sm:flex-row sm:space-x-3"
+            class="
+              flex flex-col
+              items-center
+              space-y-3
+              sm:space-y-0 sm:flex-row sm:space-x-3
+            "
           >
             <button
               @click="OPEN_MODAL(mainMovie)"
@@ -138,24 +157,12 @@
               <span>More info</span>
             </button>
 
-            <button
-              class="flex items-center justify-center px-4 py-4 space-x-3 text-xl font-bold text-white transition duration-300 bg-opacity-75 rounded-md  bg-zinc-700 hover:bg-opacity-50"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="w-6 h-6"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-
-              <span>Add to My List</span>
-            </button>
+            <AddToMyList
+              type="secondary"
+              :hero="true"
+              size="big"
+              :movie="mainMovie"
+            />
           </div>
         </div>
       </div>
@@ -247,13 +254,42 @@
         </div>
       </div>
     </transition>
+
+    <transition class="transition-fade" name="fade">
+      <div
+        @click="CLOSE_FILTER_MODAL()"
+        v-if="openedFilter"
+        class="fixed inset-0 bg-black bg-opacity-50 z-[12]"
+      ></div>
+    </transition>
+
+    <transition class="transition-scale" name="scale">
+      <div
+        @click="CLOSE_FILTER_MODAL()"
+        v-if="openedFilter"
+        class="
+          fixed
+          left-0
+          top-0
+          w-full
+          min-h-screen
+          h-[fit-content]
+          overflow-y-auto
+          z-[13]
+        "
+      >
+        <div class="w-full mx-auto mt-8 max-w-7xl" v-on:click.stop="() => {}">
+          <FilterModal :type="openedFilter.type" :value="openedFilter.value" />
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
 import { AppwriteMovie, AppwriteService } from '~/services/appwrite'
-import { mapMutations, mapState } from 'vuex'
+import { mapMutations, mapState, mapActions } from 'vuex'
 
 export default Vue.extend({
   data: () => {
@@ -263,7 +299,7 @@ export default Vue.extend({
     }
   },
   computed: {
-    ...mapState('modal', ['openedMovie']),
+    ...mapState('modal', ['openedMovie', 'openedFilter']),
   },
   async mounted() {
     const bodyElement = document.querySelector('body')
@@ -271,9 +307,12 @@ export default Vue.extend({
 
     this.profilePhoto = await AppwriteService.getProfilePhoto()
     this.mainMovie = await AppwriteService.getMainMovie()
+    await this.LOAD_FAVOURITE([this.mainMovie.$id])
   },
   methods: {
-    ...mapMutations('modal', ['OPEN_MODAL', 'CLOSE_MODAL']),
+    ...mapActions('myList', ['LOAD_FAVOURITE']),
+    ...mapActions('modal', ['OPEN_MODAL']),
+    ...mapMutations('modal', ['CLOSE_MODAL', 'CLOSE_FILTER_MODAL']),
     getSrc(imageId: string) {
       return AppwriteService.getMainThumbnail(imageId)
     },

@@ -3,172 +3,29 @@
     <h1 class="text-4xl text-zinc-200">{{ category.title }}</h1>
 
     <div
-      class="relative grid grid-cols-2 gap-4 mt-6  sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7"
+      class="relative grid grid-cols-2 gap-4 mt-6  sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
     >
-      <button
-        type="button"
-        @click="OPEN_MODAL(movie)"
-        v-for="(movie, index) in movies"
+      <Movie
+        :isPaginationEnabled="true"
+        :onPageChange="onPageChange"
+        :moviesLength="movies.length"
+        :isLoading="isLoading"
+        :isCursorAllowed="isCursorAllowed"
+        class="col-span-1"
         :key="movie.$id"
         :appwrite-id="movie.$id"
-        class="
-          z-[3]
-          hover:z-[4]
-          relative
-          col-span-1
-          rounded-md
-          aspect-[1.78/1]
-          w-full
-        "
-      >
-        <div
-          class="absolute w-full transform -translate-x-1/2 -translate-y-1/2  left-1/2 right-1/2"
-        >
-          <div
-            class="relative block rounded-lg  bg-gradient-to-b from-zinc-800 to-black"
-          >
-            <div
-              @click="onPageChange(index === 0 ? 'before' : 'after')"
-              v-if="
-                (index === 0 || index === movies.length - 1) &&
-                isCursorAllowed(index)
-              "
-              v-bind:class="
-                index === 0
-                  ? 'left-0 bg-gradient-to-r'
-                  : 'right-0 bg-gradient-to-l'
-              "
-              class="
-                flex
-                z-[5]
-                group
-                duration-500
-                transition-all
-                group-hover:to-[rgba(0,0,0,0.5)]
-                absolute
-                -top-[1px]
-                h-[calc(100%+2px)]
-                w-[50px]
-                hover:w-[80px]
-                items-center
-                justify-end
-                pr-3
-                text-white
-                from-black
-                to-transparent
-              "
-            >
-              <div
-                v-bind:class="index === 0 ? 'rotate-180' : 'rotate-0'"
-                class="transition-all duration-500 transform  group-hover:scale-150"
-              >
-                <svg
-                  v-if="isLoading"
-                  class="w-4 h-4 mr-1 animate-spin"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    class="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    stroke-width="4"
-                  ></circle>
-                  <path
-                    class="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-
-                <svg
-                  v-if="!isLoading"
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="w-6 h-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </div>
-            </div>
-
-            <div class="relative group">
-              <img
-                :src="getSrc(movie.thumbnailImageId)"
-                class="
-                  object-cover object-top
-                  w-full
-                  aspect-[1.78/1]
-                  group-hover:aspect-[500/800]
-                  transition-all
-                  duration-500
-                  rounded-none
-                  group-hover:rounded-lg
-                  shadow-none
-                  group-hover:shadow-lg
-                "
-                alt="Cover"
-              />
-
-              <div class="absolute bottom-4 left-4 right-4">
-                <!-- TODO: stop propagation! -->
-                <button
-                  type="button"
-                  class="
-                    px-2
-                    py-2
-                    font-bold
-                    text-[#141414]
-                    flex
-                    items-center
-                    justify-center
-                    space-x-2
-                    bg-[rgba(255,255,255,0.5)]
-                    group-hover:bg-white
-                    hover:!bg-[rgba(255,255,255,0.8)]
-                    transition-all
-                    duration-300
-                    rounded-md
-                    text-sm
-                  "
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="w-4 h-4"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-
-                  <span class="hidden group-hover:block">Add to My List</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </button>
+        :movie="movie"
+        :index="index"
+        v-for="(movie, index) in movies"
+      />
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
-import { mapMutations } from 'vuex'
+
+import { mapActions } from 'vuex'
 import { AppwriteMovie, AppwriteService } from '~/services/appwrite'
 
 export default Vue.extend({
@@ -187,7 +44,7 @@ export default Vue.extend({
     } else if (width < 1280) {
       perPage = 5
     } else {
-      perPage = 7
+      perPage = 6
     }
 
     return {
@@ -200,7 +57,7 @@ export default Vue.extend({
   },
 
   methods: {
-    ...mapMutations('modal', ['OPEN_MODAL']),
+    ...mapActions('myList', ['LOAD_FAVOURITE']),
     isCursorAllowed(index: number) {
       // Simply use variables we fill duging fetching data from API
       // Depending on index (direction) we want to return different variables
@@ -212,10 +69,7 @@ export default Vue.extend({
         return this.isAfterAllowed
       }
     },
-    getSrc(imageId: string) {
-      // Just a middleware since we cant directly talk to service from HTML
-      return AppwriteService.getThumbnail(imageId)
-    },
+
     async onPageChange(direction: 'before' | 'after') {
       // Show spinners instead of arrows
       this.isLoading = true
@@ -233,6 +87,9 @@ export default Vue.extend({
         direction,
         lastId
       )
+
+      // Fetch status if movie is on My List or not
+      await this.LOAD_FAVOURITE([newMovies.documents.map((d) => d.$id)])
 
       // Now lets figure out if we have previous and next page...
       // Let's start with saying we have them both, then we will set it to false if we are sure there isnt any
@@ -279,6 +136,9 @@ export default Vue.extend({
       this.perPage,
       this.$props.category
     )
+
+    // Fetch status if movie is on My List or not
+    await this.LOAD_FAVOURITE([data.documents.map((d) => d.$id)])
 
     // Store fetched data into component variables
     this.movies = data.documents

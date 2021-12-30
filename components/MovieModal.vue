@@ -64,40 +64,7 @@
       </button>
 
       <div class="absolute left-4 bottom-14">
-        <button
-          type="button"
-          class="
-            px-2
-            py-2
-            font-bold
-            text-[#141414]
-            flex
-            items-center
-            justify-center
-            space-x-2
-            bg-white
-            hover:!bg-[rgba(255,255,255,0.8)]
-            transition-all
-            duration-300
-            rounded-md
-            text-lg
-          "
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="w-5 h-5"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-              clip-rule="evenodd"
-            />
-          </svg>
-
-          <span>Add to My List</span>
-        </button>
+        <AddToMyList :movie="movie" />
       </div>
     </div>
 
@@ -127,6 +94,7 @@
           <p class="text-zinc-600">
             Cast:
             <button
+              @click="OPEN_FILTER_MODAL({ type: 'cast', value: cast })"
               type="button"
               v-for="(cast, castIndex) in movie.cast.split(', ')"
               :key="cast"
@@ -142,6 +110,7 @@
           <p class="text-zinc-600">
             Genres:
             <button
+              @click="OPEN_FILTER_MODAL({ type: 'genres', value: genre })"
               type="button"
               v-for="(genre, genreIndex) in movie.genres.split(', ')"
               :key="genre"
@@ -157,6 +126,7 @@
           <p class="text-zinc-600">
             This show is:
             <button
+              @click="OPEN_FILTER_MODAL({ type: 'tags', value: tag })"
               type="button"
               v-for="(tag, tagIndex) in movie.tags.split(', ')"
               :key="tag"
@@ -188,7 +158,7 @@ export default Vue.extend({
     },
   },
   methods: {
-    ...mapMutations('modal', ['CLOSE_MODAL']),
+    ...mapMutations('modal', ['CLOSE_MODAL', 'OPEN_FILTER_MODAL']),
     capitalizeString(text: string) {
       const capitalized = text.charAt(0).toUpperCase() + text.slice(1)
       return capitalized
