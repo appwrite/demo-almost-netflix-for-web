@@ -27,7 +27,9 @@
         "
       >
         <section class="flex items-center justify-end space-x-10">
-          <img src="/logo.png" class="h-8" alt="Almost Netflix Logo" />
+          <nuxt-link to="/app/movies">
+            <img src="/logo.png" class="h-8" alt="Almost Netflix Logo"
+          /></nuxt-link>
 
           <div class="flex space-x-6 text-zinc-200">
             <nuxt-link to="/app/movies">Movies</nuxt-link>
@@ -92,37 +94,18 @@
       >
         <div>
           <h1
-            class="
-              max-w-3xl
-              pb-6
-              text-5xl
-              font-semibold
-              text-center text-white
-              sm:text-left
-            "
+            class="max-w-3xl pb-6 text-5xl font-semibold text-center text-white  sm:text-left"
           >
             {{ mainMovie.name }}
           </h1>
           <p
-            class="
-              max-w-3xl
-              pb-6
-              text-3xl
-              font-light
-              text-center text-white
-              sm:text-left
-            "
+            class="max-w-3xl pb-6 text-3xl font-light text-center text-white  sm:text-left"
           >
             {{ mainMovie.description }}
           </p>
 
           <div
-            class="
-              flex flex-col
-              items-center
-              space-y-3
-              sm:space-y-0 sm:flex-row sm:space-x-3
-            "
+            class="flex flex-col items-center space-y-3  sm:space-y-0 sm:flex-row sm:space-x-3"
           >
             <button
               @click="OPEN_MODAL(mainMovie)"
@@ -238,16 +221,7 @@
       <div
         @click="CLOSE_MODAL()"
         v-if="openedMovie"
-        class="
-          fixed
-          left-0
-          top-0
-          w-full
-          min-h-screen
-          h-[fit-content]
-          overflow-y-auto
-          z-[11]
-        "
+        class="fixed inset-0 w-full overflow-y-auto z-[11]"
       >
         <div class="w-full mx-auto mt-8 max-w-7xl" v-on:click.stop="() => {}">
           <MovieModal :movie="openedMovie" />
@@ -267,16 +241,7 @@
       <div
         @click="CLOSE_FILTER_MODAL()"
         v-if="openedFilter"
-        class="
-          fixed
-          left-0
-          top-0
-          w-full
-          min-h-screen
-          h-[fit-content]
-          overflow-y-auto
-          z-[13]
-        "
+        class="fixed inset-0 w-full overflow-y-auto z-[13]"
       >
         <div class="w-full mx-auto mt-8 max-w-7xl" v-on:click.stop="() => {}">
           <FilterModal :type="openedFilter.type" :value="openedFilter.value" />
