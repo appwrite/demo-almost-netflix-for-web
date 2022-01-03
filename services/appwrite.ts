@@ -237,8 +237,12 @@ export const AppwriteService = {
           ...d,
           relationId: response.documents.find((d2) => d2.movieId === d.$id).$id
         }
-      });
-      console.log(documents);
+      }).sort((a, b) => {
+        const aIndex = response.documents.findIndex((d) => d.movieId === a.$id);
+        const bIndex = response.documents.findIndex((d) => d.movieId === b.$id);
+
+        return aIndex < bIndex ? -1 : 1;
+      })
     }
 
     // Return documents, but also figure out if there was this +1 document we requested. If yes, there is next page. If not, there is not
