@@ -2,7 +2,7 @@
   <div class="relative">
     <div
       class="
-        z-[2]
+        z-[3]
         absolute
         top-0
         left-0
@@ -16,7 +16,7 @@
     <div class="w-[calc(100%-20px)] lg:w-[calc(100%-100px)] mx-auto h-10 pt-6">
       <header
         class="
-          z-[3]
+          z-[4]
           relative
           flex flex-col
           items-center
@@ -63,6 +63,7 @@
     </div>
 
     <div
+      v-if="isLandingPage"
       class="
         relative
         z-[1]
@@ -167,7 +168,10 @@
       ></div>
     </div>
 
-    <div class="-mt-[250px] relative z-[3]">
+    <div
+      v-bind:class="isLandingPage ? '-mt-[250px]' : ''"
+      class="relative z-[3]"
+    >
       <div class="py-12">
         <div class="w-[calc(100%-20px)] lg:w-[calc(100%-100px)] mx-auto mt-6">
           <Nuxt />
@@ -257,14 +261,23 @@ import { AppwriteMovie, AppwriteService } from '~/services/appwrite'
 import { mapMutations, mapState, mapActions } from 'vuex'
 
 export default Vue.extend({
+  watch: {
+    $route() {
+      this.updatePanel()
+    },
+  },
   data: () => {
     return {
       profilePhoto: null as URL | null,
       mainMovie: null as null | AppwriteMovie,
+      isLandingPage: false,
     }
   },
   computed: {
     ...mapState('modal', ['openedMovie', 'openedFilter']),
+  },
+  created() {
+    this.updatePanel()
   },
   async mounted() {
     const bodyElement = document.querySelector('body')
@@ -275,6 +288,10 @@ export default Vue.extend({
     await this.LOAD_FAVOURITE([this.mainMovie.$id])
   },
   methods: {
+    updatePanel() {
+      this.isLandingPage = this.$route.path === '/app/movies'
+    },
+
     ...mapActions('myList', ['LOAD_FAVOURITE']),
     ...mapActions('modal', ['OPEN_MODAL']),
     ...mapMutations('modal', ['CLOSE_MODAL', 'CLOSE_FILTER_MODAL']),

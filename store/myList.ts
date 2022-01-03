@@ -2,13 +2,15 @@ import { GetterTree, ActionTree, MutationTree } from 'vuex'
 import { AppwriteMovie, AppwriteService } from "~/services/appwrite";
 
 export type MyListStore = {
-    favouriteIds: string[]
+    favouriteIds: string[],
+    lastManualChangeTimestamp: number
 };
 
 type StateCallback = () => MyListStore;
 
 export const state: StateCallback = () => ({
-    favouriteIds: []
+    favouriteIds: [],
+    lastManualChangeTimestamp: Date.now()
 })
 
 export type RootState = ReturnType<typeof state>
@@ -17,6 +19,7 @@ export type RootState = ReturnType<typeof state>
 export const mutations: MutationTree<RootState> = {
     ADD_FAVOURITE: async (state, movieId: string) => (state.favouriteIds.push(movieId)),
     REMOVE_FAVOURITE: (state, movieId: string) => (state.favouriteIds = state.favouriteIds.filter((f) => f !== movieId)),
+    UPDATE_LAST_ACTION: (state) => (state.lastManualChangeTimestamp = Date.now()),
 }
 
 export const actions: ActionTree<RootState, RootState> = {
@@ -40,6 +43,8 @@ export const actions: ActionTree<RootState, RootState> = {
                 commit("ADD_FAVOURITE", movieId)
             }
         }
+
+        commit("UPDATE_LAST_ACTION")
     }
 }
 

@@ -48,7 +48,9 @@ export type AppwriteMovie = {
   durationMinutes: number,
   thumbnailImageId: string,
   releaseDate: number,
-  ageRestriction: string
+  ageRestriction: string,
+
+  relationId?: string
 } & Models.Document;
 
 export type AppwriteWatchlist = {
@@ -61,6 +63,7 @@ export type AppwriteCategory = {
   queries: string[];
   orderAttributes: string[];
   orderTypes: string[];
+  collectionName?: string;
 }
 
 export const AppwriteMovieCategories: AppwriteCategory[] = [
@@ -210,12 +213,12 @@ export const AppwriteService = {
     // Get queries from category configuration. Used so this function is generic and can be easily re-used
     const queries = category.queries;
 
-    const collectionName = "movies";
-    const documents = [];
+    const collectionName = category.collectionName ? category.collectionName : "movies";
+    let documents = [];
 
     // Fetch data with configuration from category
     // Limit increased +1 on purpose so we know if there is next page
-    const response = await sdk.database.listDocuments<AppwriteMovie>(collectionName, queries, perPage + 1, undefined, cursor, cursorDirection, category.orderAttributes, category.orderTypes);
+    let response: Models.DocumentList<any> = await sdk.database.listDocuments<AppwriteMovie | AppwriteWatchlist>(collectionName, queries, perPage + 1, undefined, cursor, cursorDirection, category.orderAttributes, category.orderTypes);
 
     // Create clone of documents we got, but depeding on cursor direction, remove additional document we fetched by setting limit to +1
     if (cursorDirection === "after") {
@@ -224,9 +227,23 @@ export const AppwriteService = {
       documents.push(...response.documents.filter((_d, dIndex) => dIndex > 0 || response.documents.length === perPage));
     }
 
+    if (category.collectionName) {
+      const nestedResponse = await sdk.database.listDocuments<AppwriteMovie>("movies", [
+        Query.equal("$id", documents.map((d) => d.movieId))
+      ], documents.length);
+
+      documents = nestedResponse.documents.map((d) => {
+        return {
+          ...d,
+          relationId: response.documents.find((d2) => d2.movieId === d.$id).$id
+        }
+      });
+      console.log(documents);
+    }
+
     // Return documents, but also figure out if there was this +1 document we requested. If yes, there is next page. If not, there is not
     return {
-      documents,
+      documents: documents as AppwriteMovie[],
       hasNext: response.documents.length === perPage + 1
     };
   },

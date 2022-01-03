@@ -25,11 +25,23 @@
 <script lang="ts">
 import Vue from 'vue'
 
-import { mapActions } from 'vuex'
+import { mapActions, mapState } from 'vuex'
 import { AppwriteMovie, AppwriteService } from '~/services/appwrite'
 
 export default Vue.extend({
   props: ['category'],
+
+  watch: {
+    lastManualChangeTimestamp() {
+      if (this.category.collectionName === 'watchlists') {
+        this.reloadPage()
+      }
+    },
+  },
+
+  computed: {
+    ...mapState('myList', ['lastManualChangeTimestamp']),
+  },
 
   data: () => {
     const width = window.innerWidth
@@ -53,6 +65,9 @@ export default Vue.extend({
       isBeforeAllowed: false,
       isAfterAllowed: true,
       movies: [] as AppwriteMovie[],
+
+      lastCursor: undefined as undefined | string,
+      lastDirection: undefined as undefined | 'before' | 'after',
     }
   },
 
@@ -70,15 +85,43 @@ export default Vue.extend({
       }
     },
 
+    async reloadPage() {
+      // Show spinners instead of arrows
+      this.isLoading = true
+
+      // Fetch new list of movies using direction and last document ID
+      const newMovies = await AppwriteService.getMovies(
+        this.perPage,
+        this.$props.category,
+        this.lastDirection,
+        this.lastCursor
+      )
+
+      this.movies = newMovies.documents
+
+      // Fetch status if movie is on My List or not
+      await this.LOAD_FAVOURITE(newMovies.documents.map((d) => d.$id))
+
+      // Hide spinners, show arrows again
+      this.isLoading = false
+    },
+
     async onPageChange(direction: 'before' | 'after') {
       // Show spinners instead of arrows
       this.isLoading = true
 
-      // Depending on direction, get ID of last document we have
-      const lastId =
+      // Use relation ID if provided
+      const lastRelationId =
         direction === 'before'
-          ? this.movies[0].$id
-          : this.movies[this.movies.length - 1].$id
+          ? this.movies[0].relationId
+          : this.movies[this.movies.length - 1].relationId
+
+      // Depending on direction, get ID of last document we have
+      let lastId = lastRelationId
+        ? lastRelationId
+        : direction === 'before'
+        ? this.movies[0].$id
+        : this.movies[this.movies.length - 1].$id
 
       // Fetch new list of movies using direction and last document ID
       const newMovies = await AppwriteService.getMovies(
@@ -89,7 +132,7 @@ export default Vue.extend({
       )
 
       // Fetch status if movie is on My List or not
-      await this.LOAD_FAVOURITE([newMovies.documents.map((d) => d.$id)])
+      await this.LOAD_FAVOURITE(newMovies.documents.map((d) => d.$id))
 
       // Now lets figure out if we have previous and next page...
       // Let's start with saying we have them both, then we will set it to false if we are sure there isnt any
@@ -125,6 +168,10 @@ export default Vue.extend({
       // This solution also fails if document with ID we use as cursor is removed.
       // TODO: Implement fallback to next document ID in list, if first one fails. If all fails, WHAT THE HELL.
 
+      // Store cursor and direction if I ever need to refresh the current page
+      this.lastDirection = direction
+      this.lastCursor = lastId
+
       // Hide spinners, show arrows again
       this.isLoading = false
     },
@@ -138,7 +185,7 @@ export default Vue.extend({
     )
 
     // Fetch status if movie is on My List or not
-    await this.LOAD_FAVOURITE([data.documents.map((d) => d.$id)])
+    await this.LOAD_FAVOURITE(data.documents.map((d) => d.$id))
 
     // Store fetched data into component variables
     this.movies = data.documents
