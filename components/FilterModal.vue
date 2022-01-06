@@ -95,8 +95,8 @@ import {
   AppwriteCategory,
   AppwriteMovie,
   AppwriteService,
-  Query,
 } from '~/services/appwrite'
+import { Query } from 'appwrite'
 import { mapMutations, mapActions } from 'vuex'
 
 export default Vue.extend({

@@ -20,7 +20,7 @@ export default {
 
   env: {
     appwriteEndpoint:
-      process.env.APPWRITE_ENDPOINT || 'https://dbdemos.appwrite.org/v1',
+      process.env.APPWRITE_ENDPOINT || 'https://demo.appwrite.io/v1',
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
