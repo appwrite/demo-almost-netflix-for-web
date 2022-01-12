@@ -3,6 +3,7 @@
     <h1 class="text-4xl text-zinc-200">{{ category.title }}</h1>
 
     <div
+      v-if="movies.length > 0"
       class="relative grid grid-cols-2 gap-4 mt-6  sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
     >
       <Movie
@@ -18,6 +19,10 @@
         :index="index"
         v-for="(movie, index) in movies"
       />
+    </div>
+
+    <div v-if="movies.length <= 0" class="relative mt-6 text-zinc-500">
+      <p>This list is empty at the moment...</p>
     </div>
   </div>
 </template>
