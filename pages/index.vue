@@ -76,3 +76,9 @@ export default Vue.extend({
   middleware: 'only-unauthentificated',
 })
 </script>
+
+<style>
+.bg-image {
+  background-image: url('/bg.png');
+}
+</style>

@@ -4,10 +4,6 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-.bg-image {
-  background-image: url('/bg.png');
-}
-
 * {
   font-family: 'Inter', sans-serif;
 }

@@ -134,3 +134,9 @@ export default Vue.extend({
   },
 })
 </script>
+
+<style>
+.bg-image {
+  background-image: url('/bg.png');
+}
+</style>

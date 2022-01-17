@@ -9,15 +9,7 @@
         <div class="flex items-start justify-center mt-12">
           <form
             @submit.prevent="onRegister()"
-            class="
-              w-full
-              max-w-md
-              p-8
-              bg-black
-              rounded-md
-              sm:p-16
-              bg-opacity-80
-            "
+            class="w-full max-w-md p-8 bg-black rounded-md  sm:p-16 bg-opacity-80"
           >
             <h1 class="text-3xl font-bold text-white">Sign Up</h1>
 
@@ -246,3 +238,9 @@ export default Vue.extend({
   },
 })
 </script>
+
+<style>
+.bg-image {
+  background-image: url('/bg.png');
+}
+</style>
