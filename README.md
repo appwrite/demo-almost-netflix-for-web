@@ -1,5 +1,24 @@
 # Almost Netflix - Web
 
+![Banner](readme_banner.png)
+
+## Requirements
+
+Before using this project, you will need to have Appwrite instance with Almost Netflix project ready. You can visit Project setup [GitHub repository](https://github.com/Meldiron/almost-netflix-project-setup) or [Dev.to post](https://dev.to/appwrite/did-we-just-build-a-netflix-clone-with-appwrite-28ok).
+
+## Usage
+
+```bash
+$ git clone https://github.com/appwrite/demo-almost-netflix-for-web.git
+$ cd demo-almost-netflix-for-web
+$ yarn install
+$ yarn dev
+```
+
+Make sure to update Endpoint in `nuxt.config.js` (in `env` object), and ProjectID in `services/appwrite.ts` (righ before `export const AppwriteService`).
+
+The application will be listening on port `3000`. You can visit in on URL `http://localhost:3000`.
+
 ## Build Setup
 
 ```bash
