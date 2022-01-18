@@ -12,11 +12,7 @@
 
 <script lang="ts">
 import Vue from 'vue'
-import {
-  AppwriteMovie,
-  AppwriteService,
-  AppwriteMovieCategories,
-} from '~/services/appwrite'
+import { AppwriteMovieCategories } from '~/services/appwrite'
 
 export default Vue.extend({
   middleware: 'only-authentificated',
@@ -25,8 +21,6 @@ export default Vue.extend({
   data: () => {
     return {
       categories: AppwriteMovieCategories,
-      profilePhoto: null as any,
-      movies: [] as AppwriteMovie[],
     }
   },
   async mounted() {},

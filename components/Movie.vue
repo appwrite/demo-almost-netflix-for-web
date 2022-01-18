@@ -115,43 +115,18 @@
 <script lang="ts">
 import { mapActions } from 'vuex'
 import Vue from 'vue'
-import { AppwriteMovie, AppwriteService } from '~/services/appwrite'
+import { AppwriteService } from '~/services/appwrite'
 
 export default Vue.extend({
-  props: {
-    movie: {
-      required: true,
-      type: Object as () => AppwriteMovie,
-    },
-    index: {
-      required: true,
-      type: Number,
-    },
-    isPaginationEnabled: {
-      required: true,
-      type: Boolean,
-    },
-    isCursorAllowed: {
-      required: false,
-      default: false,
-      type: Function,
-    },
-    isLoading: {
-      required: false,
-      default: false,
-      type: Boolean,
-    },
-    moviesLength: {
-      required: false,
-      default: undefined,
-      type: Number,
-    },
-    onPageChange: {
-      required: false,
-      default: () => {},
-      type: Function,
-    },
-  },
+  props: [
+    'movie',
+    'index',
+    'isPaginationEnabled',
+    'isCursorAllowed',
+    'isLoading',
+    'moviesLength',
+    'onPageChange',
+  ],
 
   methods: {
     ...mapActions('modal', ['OPEN_MODAL']),

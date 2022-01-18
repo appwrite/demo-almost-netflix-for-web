@@ -100,16 +100,7 @@ import { Query } from 'appwrite'
 import { mapMutations, mapActions } from 'vuex'
 
 export default Vue.extend({
-  props: {
-    type: {
-      required: true,
-      type: String, // cast, genres, tags
-    },
-    value: {
-      required: true,
-      type: String,
-    },
-  },
+  props: ['type', 'value'],
 
   data() {
     const category: AppwriteCategory = {
