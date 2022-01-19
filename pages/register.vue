@@ -134,7 +134,12 @@
                   for="agree-terms"
                 >
                   I agree with
-                  <span class="text-white">terms and conditions</span>.
+                  <a
+                    href="/terms-and-conditions"
+                    target="_blank"
+                    class="text-white underline"
+                    >terms and conditions</a
+                  >.
                 </label>
               </div>
             </div>
