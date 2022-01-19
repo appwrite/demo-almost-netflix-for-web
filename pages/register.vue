@@ -199,7 +199,7 @@ import Vue from 'vue'
 import { AppwriteService } from '~/services/appwrite'
 
 export default Vue.extend({
-  middleware: 'only-unauthentificated',
+  middleware: 'only-unauthenticated',
 
   data: () => {
     return {

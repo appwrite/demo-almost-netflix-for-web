@@ -15,7 +15,7 @@ import Vue from 'vue'
 import { AppwriteMovieCategories } from '~/services/appwrite'
 
 export default Vue.extend({
-  middleware: 'only-authentificated',
+  middleware: 'only-authenticated',
   layout: 'app',
 
   data: () => {

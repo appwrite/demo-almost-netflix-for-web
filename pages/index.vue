@@ -8,14 +8,29 @@
 
         <div class="container mx-auto">
           <div
-            class="flex flex-col items-center justify-center mt-12 space-y-4 text-center "
+            class="
+              flex flex-col
+              items-center
+              justify-center
+              mt-12
+              space-y-4
+              text-center
+            "
           >
             <h1 class="text-[100px] font-bold text-white">Almost Netflix</h1>
             <p class="text-4xl text-zinc-100">Almost the best Netflix clone.</p>
           </div>
 
           <div
-            class="flex flex-col w-full max-w-md mx-auto mt-10 space-y-3  sm:flex-row sm:space-y-0 sm:space-x-3"
+            class="
+              flex flex-col
+              w-full
+              max-w-md
+              mx-auto
+              mt-10
+              space-y-3
+              sm:flex-row sm:space-y-0 sm:space-x-3
+            "
           >
             <nuxt-link to="/login" class="w-full"
               ><button
@@ -73,7 +88,7 @@
 import Vue from 'vue'
 
 export default Vue.extend({
-  middleware: 'only-unauthentificated',
+  middleware: 'only-unauthenticated',
 })
 </script>
 

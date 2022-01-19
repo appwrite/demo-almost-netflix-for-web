@@ -11,7 +11,7 @@ import Vue from 'vue'
 import { AppwriteCategory } from '../../services/appwrite'
 
 export default Vue.extend({
-  middleware: 'only-authentificated',
+  middleware: 'only-authenticated',
   layout: 'app',
   data() {
     const category: AppwriteCategory = {
