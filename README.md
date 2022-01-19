@@ -1,5 +1,6 @@
 # Almost Netflix - Web
 
+
 ![Banner](readme_banner.png)
 
 ## Requirements
