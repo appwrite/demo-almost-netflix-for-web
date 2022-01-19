@@ -225,7 +225,7 @@ export const AppwriteService = {
         name = account.email;
       }
     } catch (err) {
-      // Means we dont have account, fallbacking to anonymous image
+      // Means we don't have account, fallback to anonymous image
     }
 
     // Generate URL from previously picked keyword (name)

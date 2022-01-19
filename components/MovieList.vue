@@ -4,7 +4,16 @@
 
     <div
       v-if="movies.length > 0"
-      class="relative grid grid-cols-2 gap-4 mt-6  sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
+      class="
+        relative
+        grid grid-cols-2
+        gap-4
+        mt-6
+        sm:grid-cols-3
+        md:grid-cols-4
+        lg:grid-cols-5
+        xl:grid-cols-6
+      "
     >
       <Movie
         :isPaginationEnabled="true"
@@ -79,7 +88,7 @@ export default Vue.extend({
   methods: {
     ...mapActions('myList', ['LOAD_FAVOURITE']),
     isCursorAllowed(index: number) {
-      // Simply use variables we fill duging fetching data from API
+      // Simply use variables we fill during fetching data from API
       // Depending on index (direction) we want to return different variables
       if (index === 0) {
         return this.isBeforeAllowed
