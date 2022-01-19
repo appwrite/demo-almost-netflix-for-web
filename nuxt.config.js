@@ -20,7 +20,9 @@ export default {
 
   env: {
     appwriteEndpoint:
-      process.env.APPWRITE_ENDPOINT || 'https://demo.appwrite.io/v1',
+      process.env.APPWRITE_ENDPOINT || 'http://localhost/v1',
+      appwriteProjectId:
+        process.env.APPWRITE_PROJECT_ID || 'almostNetflix',
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css

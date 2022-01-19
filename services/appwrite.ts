@@ -114,14 +114,14 @@ export const AppwriteMovieCategories: AppwriteCategory[] = [
   },
 ];
 
-if (!process.env.appwriteEndpoint) {
+if (!process.env.appwriteEndpoint || !process.env.appwriteProjectId) {
   throw new Error("Appwrite environment variables not properly set!");
 }
 
 const sdk = new Appwrite();
 sdk
   .setEndpoint(process.env.appwriteEndpoint)
-  .setProject("almostNetflix2");
+  .setProject(process.env.appwriteProjectId);
 
 export const AppwriteService = {
   // Logout from server removing the session on backend
