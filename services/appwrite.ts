@@ -1,4 +1,14 @@
-import { Appwrite, Models, Query } from "appwrite";
+import { Account, Avatars, Client, Databases, Storage, Models, Query } from "appwrite";
+
+const client = new Client()
+
+const account = new Account(client)
+
+const databases = new Databases(client);
+
+const avatars = new Avatars(client);
+
+const storage = new Storage(client);
 
 export type AppwriteMovie = {
   name: string,
@@ -45,7 +55,7 @@ export const AppwriteMovieCategories: AppwriteCategory[] = [
 
     title: "New releases",
     queries: [
-      Query.greaterEqual('releaseDate', 2018),
+      Query.greaterThanEqual('releaseDate', 2018),
     ],
     orderAttributes: ["releaseDate"],
     orderTypes: ["DESC"]
@@ -54,7 +64,7 @@ export const AppwriteMovieCategories: AppwriteCategory[] = [
 
     title: "Movies longer than 2 hours",
     queries: [
-      Query.greaterEqual('durationMinutes', 120)
+      Query.greaterThanEqual('durationMinutes', 120)
     ],
     orderAttributes: ["durationMinutes"],
     orderTypes: ["DESC"]
@@ -118,8 +128,7 @@ if (!process.env.appwriteEndpoint || !process.env.appwriteProjectId) {
   throw new Error("Appwrite environment variables not properly set!");
 }
 
-const sdk = new Appwrite();
-sdk
+client
   .setEndpoint(process.env.appwriteEndpoint)
   .setProject(process.env.appwriteProjectId);
 
@@ -127,7 +136,7 @@ export const AppwriteService = {
   // Logout from server removing the session on backend
   async logout(): Promise<boolean> {
     try {
-      await sdk.account.deleteSession("current");
+      await account.deleteSession("current");
       return true;
     } catch (err) {
       // If error occured, we should not redirect to login page
@@ -137,18 +146,18 @@ export const AppwriteService = {
 
   // Login existing user into his account
   async login(email: string, password: string): Promise<void> {
-    await sdk.account.createSession(email, password);
+    await account.createEmailSession(email, password);
   },
 
   // Register new user into Appwrite
   async register(name: string, email: string, password: string): Promise<void> {
-    await sdk.account.create("unique()", email, password, name);
+    await account.create("unique()", email, password, name);
   },
 
   // Figure out if user is logged in or not
   async getAuthStatus(): Promise<boolean> {
     try {
-      await sdk.account.get();
+      await account.get();
       return true;
     } catch (err) {
       // If there is error, I believe it's 4XX error and it means user is not logged
@@ -159,7 +168,7 @@ export const AppwriteService = {
 
   // Simple query to get the most trading movie
   async getMainMovie(): Promise<AppwriteMovie> {
-    const response = await sdk.database.listDocuments<AppwriteMovie>("movies", [], 1, undefined, undefined, undefined, ["trendingIndex"], ["DESC"]);
+    const response = await databases.listDocuments<AppwriteMovie>("movies", "trendingIndex", ["DESC"]);
     return response.documents[0];
   },
 
@@ -176,7 +185,7 @@ export const AppwriteService = {
 
     // Fetch data with configuration from category
     // Limit increased +1 on purpose so we know if there is next page
-    let response: Models.DocumentList<any> = await sdk.database.listDocuments<AppwriteMovie | AppwriteWatchlist>(collectionName, queries, perPage + 1, undefined, cursor, cursorDirection, category.orderAttributes, category.orderTypes);
+    let response: Models.DocumentList<any> = await databases.listDocuments<AppwriteMovie | AppwriteWatchlist>(collectionName, 'perPage' );
 
     // Create clone of documents we got, but depeding on cursor direction, remove additional document we fetched by setting limit to +1
     if (cursorDirection === "after") {
@@ -186,9 +195,8 @@ export const AppwriteService = {
     }
 
     if (category.collectionName) {
-      const nestedResponse = await sdk.database.listDocuments<AppwriteMovie>("movies", [
-        Query.equal("$id", documents.map((d) => d.movieId))
-      ], documents.length);
+      const nestedResponse = await databases.listDocuments<AppwriteMovie>("movies",
+        Query.equal("$id", documents.map((d) => d.movieId)));
 
       documents = nestedResponse.documents.map((d) => {
         return {
@@ -215,43 +223,42 @@ export const AppwriteService = {
     let name = "Anonymous";
 
     try {
-      const account = await sdk.account.get();
+      await account.get();
 
-      if (account.name) {
+      if (account.client) {
         // If we have name, use that for initials
-        name = account.name;
+        account.updateName;
       } else {
         // If not, use email. That is 100% available always
-        name = account.email;
+        account.updateEmail;
       }
     } catch (err) {
       // Means we don't have account, fallback to anonymous image
     }
 
     // Generate URL from previously picked keyword (name)
-    return sdk.avatars.getInitials(name, 50, 50);
+    return avatars.getInitials(name, 50, 50);
   },
 
   // Generate URL that will resize image to 500px from original potemtially 4k image
   // Also, use webp format for better performance
   getThumbnail(imageId: string): URL {
-    return sdk.storage.getFilePreview(imageId, 500, undefined, "top", undefined, undefined, undefined, undefined, undefined, undefined, undefined, "webp");
+    return storage.getFilePreview(imageId, 'top', undefined, 500, undefined, undefined, undefined, undefined, undefined, undefined, undefined, "webp");
   },
 
   // Same as above. Generates URL, setting some limits on size and format
   getMainThumbnail(imageId: string): URL {
-    return sdk.storage.getFilePreview(imageId, 2000, undefined, "top", undefined, undefined, undefined, undefined, undefined, undefined, undefined, "webp");
+    return storage.getFilePreview(imageId, 'top', undefined, 2000, undefined, undefined, undefined, undefined, undefined, undefined, undefined, "webp");
   },
 
   async addToMyList(movieId: string): Promise<boolean> {
     try {
-      const { $id: userId } = await sdk.account.get();
+      const { $id: userId } = await account.get();
 
-      await sdk.database.createDocument("watchlists", "unique()", {
+      await databases.createDocument("watchlists", "unique()",
         userId,
         movieId,
-        createdAt: Math.round(Date.now() / 1000)
-      });
+      );
       return true;
     } catch (err: any) {
       alert(err.message);
@@ -259,18 +266,18 @@ export const AppwriteService = {
     }
   },
 
-  async deleteFromMyList(movieId: string): Promise<boolean> {
+  async deleteFromMyList(movieId: string[]): Promise<boolean> {
     try {
-      const { $id: userId } = await sdk.account.get();
+      const { $id: userId } = await account.get();
 
-      const watchlistResponse = await sdk.database.listDocuments<AppwriteWatchlist>("watchlists", [
-        Query.equal("userId", userId),
-        Query.equal("movieId", movieId)
-      ], 1);
+      const watchlistResponse = await databases.listDocuments<AppwriteWatchlist>("watchlists",
+        userId,
+        movieId,
+        );
 
       const watchlistId = watchlistResponse.documents[0].$id;
 
-      await sdk.database.deleteDocument("watchlists", watchlistId);
+      await databases.deleteDocument("watchlists", watchlistId, 'watchlists');
       return true;
     } catch (err: any) {
       alert(err.message);
@@ -279,12 +286,12 @@ export const AppwriteService = {
   },
 
   async getOnlyMyList(movieIds: string[]): Promise<string[]> {
-    const { $id: userId } = await sdk.account.get();
+    const { $id: userId } = await account.get();
 
-    const watchlistResponse = await sdk.database.listDocuments<AppwriteWatchlist>("watchlists", [
-      Query.equal("userId", userId),
-      Query.equal("movieId", movieIds)
-    ], movieIds.length);
+    const watchlistResponse = await databases.listDocuments<AppwriteWatchlist>("watchlists",
+      userId,
+      movieIds,
+      );
 
     return watchlistResponse.documents.map((d) => d.movieId);
   }

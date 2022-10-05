@@ -33,7 +33,7 @@ export const actions: ActionTree<RootState, RootState> = {
     },
     async TOGGLE_FAVOURITE({ commit, state }, movieId: string) {
         if (state.favouriteIds.includes(movieId)) {
-            const wasSuccessful = await AppwriteService.deleteFromMyList(movieId);
+            const wasSuccessful = await AppwriteService.deleteFromMyList([movieId]);
             if (wasSuccessful) {
                 commit("REMOVE_FAVOURITE", movieId)
             }
